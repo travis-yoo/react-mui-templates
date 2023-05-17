@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState } from "react";
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -22,16 +22,64 @@ import Select from '@mui/material/Select';
 const theme = createTheme();
 
 export default function Submit() {
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    const data = new FormData(event.currentTarget);
-    console.log(data);
+  const [values, setValues] = useState({
+    firstName: "",
+    lastName: "",
+    email: "",
+    gender: 'female',
+    age: 10,
+    options: ["option1"],
+    inquiry: ""
+  });
+
+  const [errors, setErrors] = useState({});
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    if (name === "options") {
+      // Handle checkbox options
+      const options = values.options.includes(value)
+        ? values.options.filter((option) => option !== value)
+        : [...values.options, value];
+      setValues({ ...values, options });
+    } else {
+      // Handle text input and select fields
+      setValues({
+        ...values,
+        [name]: value
+      });
+    }
   };
 
-  const [age, setAge] = React.useState('');
+  const validateForm = () => {
+    let formIsValid = true;
+    let newErrors = {};
 
-  const handleAgeChange = (event) => {
-    setAge(event.target.value);
+    if (!values.firstName) {
+      formIsValid = false;
+      newErrors["firstName"] = "Please enter your first name.";
+    }
+
+    if (!values.lastName) {
+      formIsValid = false;
+      newErrors["lastName"] = "Please enter your last name.";
+    }
+
+    if (!values.email) {
+      formIsValid = false;
+      newErrors["email"] = "Please enter your email.";
+    }
+
+    setErrors(newErrors);
+    return formIsValid;
+  };
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+    if (validateForm()) {
+      // Submit the form data
+      console.log(values);
+    }
   };
 
   return (
@@ -63,6 +111,10 @@ export default function Submit() {
                   id="firstName"
                   label="First Name"
                   autoFocus
+                  value={values.firstName}
+                  onChange={handleChange}
+                  error={errors.firstName ? true : false}
+                  helperText={errors.firstName}                  
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
@@ -73,6 +125,10 @@ export default function Submit() {
                   label="Last Name"
                   name="lastName"
                   autoComplete="family-name"
+                  value={values.lastName}
+                  onChange={handleChange}
+                  error={errors.lastName ? true : false}
+                  helperText={errors.lastName}                
                 />
               </Grid>
               <Grid item xs={12}>
@@ -83,15 +139,24 @@ export default function Submit() {
                   label="Email Address"
                   name="email"
                   autoComplete="email"
+                  value={values.email}
+                  onChange={handleChange}
+                  error={errors.email ? true : false}
+                  helperText={errors.email}
                 />
               </Grid>
               <Grid item xs={12}>
-                <FormControl>
+                <FormControl
+                  error={errors.gender ? true : false}
+                  helperText={errors.gender}
+                >   
                   <FormLabel id="demo-row-radio-buttons-group-label">Gender</FormLabel>
                   <RadioGroup
                     row
                     aria-labelledby="demo-row-radio-buttons-group-label"
-                    name="row-radio-buttons-group"
+                    name="gender"
+                    value={values.gender}
+                    onChange={handleChange}
                   >
                     <FormControlLabel value="female" control={<Radio />} label="Female" />
                     <FormControlLabel value="male" control={<Radio />} label="Male" />
@@ -105,9 +170,12 @@ export default function Submit() {
                   <Select
                     labelId="demo-simple-select-label"
                     id="demo-simple-select"
-                    value={age}
                     label="Age"
-                    onChange={handleAgeChange}
+                    name="age"
+                    value={values.age}
+                    onChange={handleChange}
+                    error={errors.age ? true : false}
+                    helperText={errors.age}
                   >
                     <MenuItem value={10}>Ten</MenuItem>
                     <MenuItem value={20}>Twenty</MenuItem>
@@ -117,16 +185,28 @@ export default function Submit() {
               </Grid>
               <Grid item xs={12}>
                 <FormControlLabel
-                  control={<Checkbox value="allowExtraEmails" color="primary" />}
+                  control={
+                    <Checkbox
+                      checked={values.options.includes("option1")}
+                      onChange={handleChange}
+                      name="options"
+                      value="option1"
+                    />
+                  }
                   label="This one goes out to the one I love."
                 />
               </Grid>
               <Grid item xs={12}>
                 <TextField
-                  id="standard-multiline-static"
+                  id="form-simple-inquiry"
                   fullWidth
                   multiline
                   rows={4}
+                  name="inquiry"
+                  value={values.inquiry}
+                  onChange={handleChange}
+                  error={errors.inquiry ? true : false}
+                  helperText={errors.inquiry}          
                 />
               </Grid>
             </Grid>
