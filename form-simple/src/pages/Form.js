@@ -77,8 +77,23 @@ export default function Submit() {
   const handleSubmit = (event) => {
     event.preventDefault();
     if (validateForm()) {
-      // Submit the form data
-      console.log(values);
+      // Perform AJAX request using fetch
+      fetch('/api/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(values)
+      })
+      .then((res) => res.json())
+      .then((d) => {
+        // Handle the response data
+        console.log(d);
+      })
+      .catch((err) => {
+        // Handle errors
+        console.error(err);
+      });
     }
   };
 
